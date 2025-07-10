@@ -10,12 +10,12 @@ package.domain = org.elisco
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,db
 source.exclude_dirs = tests, bin, venv
-
+icon.filename = %(source.dir)s/Logo.png
 # Version de l'application
 version = 1.0
 
 # Dépendances Python nécessaires
-requirements = python3,kivy==2.3.0,kivymd==2.3.0,sqlite3,reportlab,pillow
+requirements = python3,kivy,kivymd,sqlite3,reportlab,pillow
 
 # Orientation de l'application (landscape, portrait, ou all)
 orientation = portrait
