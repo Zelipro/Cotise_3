@@ -1,26 +1,74 @@
-name: Build
+name: Build APK
+
 on:
   push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  # Build job. Builds app for Android with Buildozer
   build-android:
     name: Build for Android
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Clone the repository
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Step 2: Install Buildozer dependencies, including wget
+      - name: Install Buildozer dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y git zip unzip python3-pip autoconf automake libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev openjdk-17-jdk gettext wget
+          pip install --user --upgrade cython==0.29.36 virtualenv buildozer
+          echo 'export PATH=$PATH:~/.local/bin/' >> ~/.bashrc
+
+      # Step 3: Install libtinfo5 manually (for compatibility with older dependencies)
+      - name: Install libtinfo5
+        run: |
+          wget http://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/libtinfo5_6.2-0ubuntu2_amd64.deb
+          sudo dpkg -i libtinfo5_6.2-0ubuntu2_amd64.deb
+          sudo apt-get install -f
+
+      # Step 4: Set up Java environment
+      - name: Setup Java
+        run: |
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          sudo update-java-alternatives --set ${JAVA_HOME}
+          export PATH=$JAVA_HOME/bin:$PATH
+
+      # Step 5: Cache Buildozer global directory
+      - name: Cache Buildozer global directory
+        uses: actions/cache@v4
+        with:
+          path: .buildozer_global
+          key: buildozer-global-${{ hashFiles('buildozer.spec') }}
+
+      # Step 6: Cache Buildozer build directory
+      - name: Cache Buildozer
+        uses: actions/cache@v4
+        with:
+          path: .buildozer
+          key: ${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
+
+      # Step 7: Clean Buildozer cache (to avoid corrupted builds)
+      - name: Clean Buildozer cache
+        run: |
+          ~/.local/bin/buildozer android clean
+
+      # Step 8: Build with Buildozer
       - name: Build with Buildozer
         uses: ArtemSBulgakov/buildozer-action@v1
         id: buildozer
         with:
           workdir: .
+          command: buildozer android debug
           buildozer_version: stable
 
+      # Step 9: Upload artifacts
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: package
-          path: ${{ steps.buildozer.outputs.filename }}
+          name: apk-package
+          path: bin/*.apk
