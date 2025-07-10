@@ -1,60 +1,26 @@
-name: Build APK
-
+name: Build
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
+  # Build job. Builds app for Android with Buildozer
   build-android:
     name: Build for Android
     runs-on: ubuntu-latest
 
     steps:
-      # Étape 1 : Cloner le dépôt
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Étape 2 : Installer les dépendances Buildozer
-      - name: Install Buildozer dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y git zip unzip python3-pip autoconf automake libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev openjdk-17-jdk gettext
-          pip install --user --upgrade cython virtualenv buildozer
-          echo 'export PATH=$PATH:~/.local/bin/' >> ~/.bashrc
-
-      # Étape 3 : Configurer le chemin Java
-      - name: Setup Java
-        run: |
-          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-          sudo update-java-alternatives --set ${JAVA_HOME}
-          export PATH=$JAVA_HOME/bin:$PATH
-
-      # Étape 4 : Mettre en cache les dépendances Buildozer
-      - name: Cache Buildozer global directory
-        uses: actions/cache@v4
-        with:
-          path: .buildozer_global
-          key: buildozer-global-${{ hashFiles('buildozer.spec') }}
-
-      - name: Cache Buildozer
-        uses: actions/cache@v4
-        with:
-          path: .buildozer
-          key: ${{ runner.os }}-${{ hashFiles('buildozer.spec') }}
-
-      # Étape 5 : Compiler l'APK
       - name: Build with Buildozer
         uses: ArtemSBulgakov/buildozer-action@v1
         id: buildozer
         with:
-          command: buildozer android debug
+          workdir: .
           buildozer_version: stable
 
-      # Étape 6 : Téléverser l'APK comme artefact
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: apk-package
-          path: bin/*.apk
+          name: package
+          path: ${{ steps.buildozer.outputs.filename }}
