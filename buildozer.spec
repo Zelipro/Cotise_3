@@ -5,7 +5,7 @@ package.domain = org.example
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,db
 version = 1.0
-requirements = python3,kivy,kivymd,sqlite3,reportlab==3.6.12,pillow
+requirements = python3,kivy,kivymd,sqlite3,reportlab,pillow
 icon.filename = %(source.dir)s/Logo.png
 
 [buildozer]
