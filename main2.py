@@ -22,18 +22,9 @@ import datetime
 #Window.size = [360,610]
 
 from kivy.metrics import dp
-from reportlab.lib.pagesizes import letter 
-from reportlab.pdfgen import canvas
 import sqlite3 as sp
-from pythonforandroid.recipe import PythonRecipe
+from fpdf import FPDF
 
-class ReportlabRecipe(PythonRecipe):
-    version = '3.6.12'
-    url = 'https://files.pythonhosted.org/packages/source/r/reportlab/reportlab-{version}.tar.gz'
-    site_packages_name = 'reportlab'
-    depends = ['python3', 'pillow']
-
-recipe = ReportlabRecipe()
 
 #main
 class ImageButton(MDCard, RectangularRippleBehavior):
@@ -344,51 +335,57 @@ class Cotise(MDApp):
             retur.append(f"Total = {Som}")
             return retur
         
-    def PDF(self, rep, Messagess): #Ici
-        file = canvas.Canvas(f"{rep}/Liste.pdf", pagesize=letter)
-        file.setTitle("Liste PDF")
+    def PDF(self, rep, Messagess):  # Ici
+        pdf = FPDF(format='letter')
+        pdf.set_title("Liste PDF")
         
         # Configuration initiale
-        line = 750  # Position verticale initiale
+        line = 275  # Position verticale initiale (ajustée pour FPDF2, qui utilise des unités en mm)
         page_number = 1
         
         def draw_header():
             """Dessine l'en-tête sur chaque page"""
-            nonlocal file, line
+            nonlocal pdf, line
             header = f"REPPORT DE COTISATION POUR {self.Instance}"
-            file.setFont("Helvetica-Bold", 18)
-            file.drawString(150, line, f"{header}")
-            file.setLineWidth(1.5)
-            file.line(150, line - 3, 200 + file.stringWidth(f"{header}", "Helvetica-Bold", 17), line - 3)
-            file.setFont("Helvetica", 16)
-            line -= 40
+            pdf.set_font("Helvetica", style="B", size=18)
+            pdf.set_xy(50, line - 10)  # Ajustement de la position X/Y
+            pdf.cell(w=0, h=10, txt=header, align="C", ln=1)
+            pdf.line(50, line - 15, 150 + pdf.get_string_width(header), line - 15)  # Ligne sous l'en-tête
+            pdf.set_font("Helvetica", size=16)
+            line -= 20
         
-        # Dessiner l'en-tête de la première page
+        # Ajouter une nouvelle page et dessiner l'en-tête de la première page
+        pdf.add_page()
         draw_header()
         
         for elmt in Messagess:
             # Vérifier si on a besoin d'une nouvelle page
-            if line < 50:  # Marge basse
-                file.showPage()
+            if line < 20:  # Marge basse (ajustée pour FPDF2)
+                pdf.add_page()
                 page_number += 1
-                line = 750
+                line = 275
                 draw_header()
             
             # Dessiner l'élément avec son formatage approprié
             if "Total" in elmt or len(elmt.split("/")) == 3:
-                file.drawString(250, line, elmt)
-                #file.line(250, line - 2, 250 + file.stringWidth(elmt, "Helvetica", 12), line - 2)
+                pdf.set_xy(90, line - 10)  # Ajustement pour aligner à 250 points (environ 90 mm)
+                pdf.cell(w=0, h=10, txt=elmt, align="L", ln=1)
+                #pdf.line(90, line - 12, 90 + pdf.get_string_width(elmt), line - 12)  # Ligne optionnelle
             else:
-                file.drawString(200, line, elmt)
-                #file.line(200, line - 2, 200 + file.stringWidth(elmt, "Helvetica", 12), line - 2)
+                pdf.set_xy(70, line - 10)  # Ajustement pour aligner à 200 points (environ 70 mm)
+                pdf.cell(w=0, h=10, txt=elmt, align="L", ln=1)
+                #pdf.line(70, line - 12, 70 + pdf.get_string_width(elmt), line - 12)  # Ligne optionnelle
             
-            line -= 25  # Espacement entre les lignes
+            line -= 10  # Espacement entre les lignes (ajusté pour FPDF2)
         
         # Pied de page sur la dernière page
-        file.setFont("Helvetica", 10)
-        file.drawString(500, 30, f"Fin du document - {datetime.datetime.now().strftime('%d/%m/%Y')}")
+        from datetime import datetime
+        pdf.set_font("Helvetica", size=10)
+        pdf.set_xy(180, 10)  # Position pour le pied de page (environ 500 points)
+        pdf.cell(w=0, h=10, txt=f"Fin du document - {datetime.now().strftime('%d/%m/%Y')}", align="R", ln=1)
         
-        file.save()
+        # Sauvegarder le fichier
+        pdf.output(f"{rep}/Liste.pdf")
         
     def exist(self,name):
         try:
