@@ -25,6 +25,15 @@ from kivy.metrics import dp
 from reportlab.lib.pagesizes import letter 
 from reportlab.pdfgen import canvas
 import sqlite3 as sp
+from pythonforandroid.recipe import PythonRecipe
+
+class ReportlabRecipe(PythonRecipe):
+    version = '3.6.12'
+    url = 'https://files.pythonhosted.org/packages/source/r/reportlab/reportlab-{version}.tar.gz'
+    site_packages_name = 'reportlab'
+    depends = ['python3', 'pillow']
+
+recipe = ReportlabRecipe()
 
 #main
 class ImageButton(MDCard, RectangularRippleBehavior):
