@@ -9,7 +9,7 @@ requirements = python3,kivy,kivymd,sqlite3,fpdf2,pillow
 icon.filename = %(source.dir)s/Logo.png
 
 [buildozer]
-log_level = 2
+log_level = 1
 
 [android]
 api = 34
