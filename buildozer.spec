@@ -17,6 +17,6 @@ minapi = 21
 ndk = 25b
 sdk = 34
 android.permissions = INTERNET
-android.archs = arm64-v8a  # Start with one arch to simplify
+android.archs = armeabi-v7a  # Start with one arch to simplify
 orientation = all
 android.orientation = all
