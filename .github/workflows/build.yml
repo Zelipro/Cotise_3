@@ -17,11 +17,6 @@ jobs:
           sudo apt-get install -y wget
           wget --version  # Verify wget is installed
 
-      - name: Clean Buildozer cache
-        run: |
-          buildozer android clean
-          rm -rf .buildozer
-
       - name: Build with Buildozer
         uses: ArtemSBulgakov/buildozer-action@v1
         id: buildozer
