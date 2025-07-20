@@ -4,6 +4,7 @@ package.name = Cotisation
 package.domain = org.example
 source.dir = .
 source.include_exts = py,png,jpg,kv,atlas,db,webp
+source.include_patterns = *.db,*.jpeg,*.jpg,*.png,*.webp
 version = 1.0
 requirements = python3,kivy,kivymd,sqlite3,fpdf2,pillow
 icon.filename = %(source.dir)s/Logo.png
