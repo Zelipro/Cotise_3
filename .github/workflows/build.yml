@@ -1,26 +1,39 @@
 name: Build
 on:
   push:
-
 jobs:
   # Build job. Builds app for Android with Buildozer
   build-android:
     name: Build for Android
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
+      
       - name: Build with Buildozer
         uses: ArtemSBulgakov/buildozer-action@v1
         id: buildozer
         with:
           workdir: .
           buildozer_version: stable
-
+          # Rediriger les logs pour éviter le dépassement
+          command: |
+            echo "::group::Building APK"
+            buildozer android debug 2>&1 | tail -n 1000
+            echo "::endgroup::"
+            echo "Build terminé"
+            ls -la bin/
+      
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: package
           path: ${{ steps.buildozer.outputs.filename }}
+      
+      # Optionnel : Upload des logs complets si nécessaire
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: "*.log"
