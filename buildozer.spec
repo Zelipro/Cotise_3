@@ -4,8 +4,8 @@ package.name = Cotise
 package.domain = org.example
 
 source.dir = .
-source.include_exts = py,png,jpg,kv,atlas,txt,jpeg,db,webp
-source.include_patterns = Pages/*,*.db,*.jpeg,*.jpg,*.png,*.webp
+source.include_exts = py,png,jpg,kv,atlas,db,webp
+source.include_patterns = *.db,*.jpg,*.png,*.webp
 version = 1.1
 requirements = python3,kivy,kivymd,sqlite3,pillow
 icon.filename = %(source.dir)s/Logo.png
